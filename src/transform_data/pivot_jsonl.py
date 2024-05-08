@@ -42,7 +42,7 @@ def pivot_jsonl(input_filepath: str, output_filepath: str) -> None:
         )
 
     for key in coldata:
-        if key invalid_data_type_colnames:
+        if key in invalid_data_type_colnames:
             del coldata[key]
 
     for line in lines:

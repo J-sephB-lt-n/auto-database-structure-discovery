@@ -25,7 +25,7 @@ import json
 import pathlib
 import src.discover
 
-table_data = dict()
+table_data = {}
 
 for filepath in pathlib.Path("temp_storage").iterdir():
     if filepath.suffix==".json":

@@ -23,7 +23,7 @@ def pivot_jsonl(input_filepath: str, output_filepath: str) -> None:
     """
     logger.info("Importing file [%s]", input_filepath)
     coldata = dict()
-    invalid_data_type_colames: set[str] = ()
+    invalid_data_type_colnames: set[str] = set()
     with open(input_filepath, "r", encoding="utf-8") as file:
         lines: list[dict] = []
         for line in file.readlines():
@@ -33,17 +33,19 @@ def pivot_jsonl(input_filepath: str, output_filepath: str) -> None:
                 if key not in coldata:
                     coldata[key] = []
                 if type(value) not in (str, int, float, bool, None):
-                    invalid_data_type_colames.add(key)
+                    invalid_data_type_colnames.add(key)
 
-    if len(invalid_data_type_colames) > 0:
+    if len(invalid_data_type_colnames) > 0:
         logger.warning(
-            "The following columns contain nested data and have been ommitted from the output:\n%s",
+            "The following columns contain complex or nested data types and have been ommitted from the output:\n%s",
             invalid_data_type_colnames,
         )
 
-    for key in coldata:
-        if key in invalid_data_type_colnames:
-            del coldata[key]
+    coldata = {
+        key: val
+        for key, val in coldata.items()
+        if key not in invalid_data_type_colnames
+    }
 
     for line in lines:
         for colname in coldata:

@@ -19,7 +19,7 @@ def make_sqlite_skeleton(col_pairs: list[tuple], output_db_path: str) -> None:
         ...             ( ("transactions_tbl","product_id"), ("products_tbl","id") ),
         ...             ( ("user_address_tbl","user_id"), ("users_tbl","id") ),
         ...         ],
-        ...         output_db_path="./key_relationships_sqlite_skeleton.db",
+        ...         output_db_path="output/key_relationships_sqlite_skeleton.db",
         ...     )
         CREATE TABLE users_tbl( id , FOREIGN KEY (id) REFERENCES transactions_tbl(user_id) );
         CREATE TABLE transactions_tbl( user_id, product_id , FOREIGN KEY (product_id) REFERENCES products_tbl(id) );

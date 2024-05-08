@@ -1,20 +1,19 @@
 """
-Defines function discover_join_keys()
+Defines function src.discover.join_keys()
 """
 
 import json
 import itertools
 import random
 
-
-def discover_join_keys(
+def join_keys(
     tbl_contents: dict[str, dict],
     n_samples: int = 500,
     output_path: str = "output/discovered_join_keys.json",
     verbose: bool = False,
 ) -> None:
     """Determines (by sampling and brute force) which columns might be candidates for
-    joining between multiple tables.
+    joining between multiple tables (i.e. are ID columns in common)
 
     Notes:
         - None values and strings containing only whitespace are ignored
@@ -83,10 +82,12 @@ def discover_join_keys(
     """
     results: list[dict] = []
     table_names: tuple[str, ...] = tuple(tbl_contents.keys())
+    comparison_pairs = itertools.combinations(tbl_contents.items(), 2)
+    comparison_counter = itertools.count(1)
     for (sample_tbl_name, sample_tbl_data), (
         lookup_tbl_name,
         lookup_tbl_data,
-    ) in itertools.combinations(tbl_contents.items(), 2):
+    ) in comparison_pairs:
         for sample_colname, sample_coldata in sample_tbl_data.items():
             for lookup_colname, lookup_coldata in lookup_tbl_data.items():
                 if verbose:
@@ -166,5 +167,8 @@ def discover_join_keys(
                 )
                 if verbose:
                     print(json.dumps(results[-1], indent=4, default=str))
+        print(
+            f"Completed comparison {next(comparison_counter):,} of {len(comparison_pairs):,}"
+        )
     with open(output_path, "w", encoding="utf-8") as file:
         json.dump(results, file, indent=4)

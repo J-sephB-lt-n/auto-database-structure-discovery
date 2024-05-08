@@ -164,6 +164,7 @@ cython_debug/
 
 # So I don't commit something sensitive by accident:
 *.csv
+*.json
 *.jsonl
  
 

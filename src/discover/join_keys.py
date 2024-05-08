@@ -6,6 +6,7 @@ import json
 import itertools
 import random
 
+
 def join_keys(
     tbl_contents: dict[str, dict],
     n_samples: int = 500,
@@ -82,7 +83,7 @@ def join_keys(
     """
     results: list[dict] = []
     table_names: tuple[str, ...] = tuple(tbl_contents.keys())
-    comparison_pairs = itertools.combinations(tbl_contents.items(), 2)
+    comparison_pairs = list(itertools.combinations(tbl_contents.items(), 2))
     comparison_counter = itertools.count(1)
     for (sample_tbl_name, sample_tbl_data), (
         lookup_tbl_name,
@@ -121,6 +122,16 @@ def join_keys(
                 n_in_sample_have_exactly_1_match = sum(
                     [1 for x in sample_match_counts.values() if x == 1]
                 )
+                if len(sample_match_counts) == 0:
+                    percent_in_sample_have_any_matches = None
+                    percent_in_sample_have_exactly_1_match = None
+                else:
+                    percent_in_sample_have_any_matches = round(
+                        n_in_sample_have_any_matches / len(sample_match_counts), 2
+                    )
+                    percent_in_sample_have_exactly_1_match = round(
+                        n_in_sample_have_exactly_1_match / len(sample_match_counts), 2
+                    )
                 results.append(
                     {
                         "sampled_col": {
@@ -148,19 +159,11 @@ def join_keys(
                         "matches": {
                             "any_matches_in_lookup": {
                                 "n": n_in_sample_have_any_matches,
-                                "percent": round(
-                                    n_in_sample_have_any_matches
-                                    / len(sample_match_counts),
-                                    2,
-                                ),
+                                "percent": percent_in_sample_have_any_matches,
                             },
                             "exactly_1_match_in_lookup": {
                                 "n": n_in_sample_have_exactly_1_match,
-                                "percent": round(
-                                    n_in_sample_have_exactly_1_match
-                                    / len(sample_match_counts),
-                                    2,
-                                ),
+                                "percent": percent_in_sample_have_exactly_1_match,
                             },
                         },
                     }

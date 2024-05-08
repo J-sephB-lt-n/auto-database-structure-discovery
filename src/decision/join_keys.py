@@ -22,11 +22,7 @@ def less_than(x, y) -> bool:
 
 def join_keys(
     input_data_filepath: str,
-    min_match_criteria: tuple[tuple, ...] = (
-        ("matches", "any_matches_in_lookup", "percent", (greater_than, 0.1)),
-        ("sampled_col", "sample_size", "percent_null", (less_than, 0.1)),
-        ("lookup_col", "size", "percent_null", (less_than, 0.1)),
-    ),
+    min_match_criteria: tuple[tuple, ...],
 ) -> list[tuple]:
     """Reads in the output of the function
     src.discover.join_keys.join_keys() and decides which

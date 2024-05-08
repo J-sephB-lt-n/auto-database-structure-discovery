@@ -49,37 +49,7 @@ def join_keys(
         ...     }
         ... }
         >>> discover_join_keys(tbl_contents=table_data, verbose=True)
-        {
-            "sampled_col": {
-                "table_name": "users_table",
-                "column_name": "id",
-                "sample_size": {
-                    "n_rows": 9,
-                    "n_null": 1,
-                    "percent_null": 0.11,
-                    "n_unique": 8,
-                },
-            "lookup_col": {
-                "table_name": "user_status_table",
-                "column_name": "user_id",
-                "size": {
-                    "n_rows": 3,
-                    "n_null": 0,
-                    "percent_null": 0.0,
-                    "n_unique": 3,
-                },
-            "matches": {
-                "any_matches_in_lookup": {
-                    "n": 3,
-                    "percent": 0.33,
-                },
-                "exactly_1_match_in_lookup": {
-                    "n": 3,
-                    "percent": 0.33,
-                },
-            }
-        }
-        ...
+        !!!OUTPUT TODO HERE!!!
     """
     results: list[dict] = []
     table_names: tuple[str, ...] = tuple(tbl_contents.keys())
@@ -132,6 +102,8 @@ def join_keys(
                     percent_in_sample_have_exactly_1_match = round(
                         n_in_sample_have_exactly_1_match / len(sample_match_counts), 2
                     )
+                sample_n_unique_vals: int = len(sample_match_counts)
+                lookup_n_unique_vals: int = len(set(lookup_coldata))
                 results.append(
                     {
                         "sampled_col": {
@@ -141,7 +113,10 @@ def join_keys(
                                 "n_rows": len(sample),
                                 "n_null": sample_n_null,
                                 "percent_null": round(sample_n_null / len(sample), 2),
-                                "n_unique": len(sample_match_counts),
+                                "n_unique":sample_n_unique_vals,
+                                "n_unique/n_rows": round(
+                                    sample_n_unique_vals/ len(sample), 2
+                                ),
                             },
                         },
                         "lookup_col": {
@@ -153,7 +128,10 @@ def join_keys(
                                 "percent_null": round(
                                     lookup_n_null / len(lookup_coldata)
                                 ),
-                                "n_unique": len(set(lookup_coldata)),  # expensive?
+                                "n_unique": lookup_n_unique_vals,
+                                "n_unique/n_rows": round(
+                                    lookup_n_unique_vals / len(lookup_coldata), 2
+                                ),
                             },
                         },
                         "matches": {

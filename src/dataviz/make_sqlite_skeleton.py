@@ -1,5 +1,5 @@
 """
-Defines function make_sqlite_skeleton()
+Defines function src.dataviz.make_sqlite_skeleton.make_sqlite_skeleton()
 """
 
 import sqlite3

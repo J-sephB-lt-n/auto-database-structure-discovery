@@ -23,7 +23,8 @@ def less_than(x, y) -> bool:
 def join_keys(
     input_data_filepath: str,
     min_match_criteria: tuple[tuple, ...],
-) -> list[tuple]:
+    output_filepath: str
+) -> None:
     """Reads in the output of the function
     src.discover.join_keys.join_keys() and decides which
     column pairs show sufficient evidence to be considered
@@ -32,9 +33,11 @@ def join_keys(
     Args:
         input_data_filepath (str): TODO
         min_match_criteria (tuple): TODO
+        output_filepath (str): TODO
 
     Returns:
-        list[tuple]: The format expected by the argument `col_pairs` of function
+        None: output is exported to a .json file at `output_filepath`, in
+                    the format expected by the argument `col_pairs` of function
                      src.dataviz.make_sqlite_skeleton.make_sqlite_skeleton()
     """
     with open(input_data_filepath, "r", encoding="utf-8") as file:
@@ -65,4 +68,8 @@ def join_keys(
                 )
             )
 
-    return results
+    print(f"Discovered {len(results)} join key pairs")
+
+    with open(output_filepath, "w", encoding="utf-8") as file:
+        json.dump(results, file, indent=4)
+

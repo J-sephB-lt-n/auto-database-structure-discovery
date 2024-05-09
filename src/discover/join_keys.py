@@ -1,7 +1,8 @@
 """
-Defines function src.discover.join_keys()
+Defines function src.discover.join_keys.join_keys()
 """
 
+import datetime
 import json
 import itertools
 import random
@@ -28,7 +29,7 @@ def join_keys(
                         selection of `n_samples` rows from column 1 will be searched
                         for in comparison column 2
         output_path (str): Local path on filesystem to which the output will be written
-        verbose (bool): Print diagnostic information to standard out during script run
+        verbose (bool): Print match output to standard out while the code runs
 
     Returns:
         None: output is written to a json file on the local filesystem
@@ -53,7 +54,8 @@ def join_keys(
     """
     results: list[dict] = []
     table_names: tuple[str, ...] = tuple(tbl_contents.keys())
-    comparison_pairs = list(itertools.combinations(tbl_contents.items(), 2))
+    comparison_pairs = list(itertools.permutations(tbl_contents.items(), r=2))
+    # comparison_pairs = list(itertools.combinations(tbl_contents.items(), 2))
     comparison_counter = itertools.count(1)
     for (sample_tbl_name, sample_tbl_data), (
         lookup_tbl_name,
@@ -63,16 +65,10 @@ def join_keys(
             for lookup_colname, lookup_coldata in lookup_tbl_data.items():
                 if verbose:
                     print(
-                        "sample_tbl_name:",
-                        sample_tbl_name,
-                        "sample_colname:",
-                        sample_colname,
+                        f"sample_tbl_name={sample_tbl_name} sample_colname={sample_colname}"
                     )
                     print(
-                        "lookup_tbl_name:",
-                        lookup_tbl_name,
-                        "lookup_colname:",
-                        lookup_colname,
+                        f"lookup_tbl_name={lookup_tbl_name} lookup_colname={lookup_colname}"
                     )
                 if len(sample_coldata) > n_samples:
                     sample = random.sample(sample_coldata, k=n_samples)
@@ -113,9 +109,9 @@ def join_keys(
                                 "n_rows": len(sample),
                                 "n_null": sample_n_null,
                                 "percent_null": round(sample_n_null / len(sample), 2),
-                                "n_unique":sample_n_unique_vals,
+                                "n_unique": sample_n_unique_vals,
                                 "n_unique/n_rows": round(
-                                    sample_n_unique_vals/ len(sample), 2
+                                    sample_n_unique_vals / len(sample), 2
                                 ),
                             },
                         },
@@ -149,7 +145,7 @@ def join_keys(
                 if verbose:
                     print(json.dumps(results[-1], indent=4, default=str))
         print(
-            f"Completed comparison {next(comparison_counter):,} of {len(comparison_pairs):,}"
+            f"{datetime.datetime.now().strftime('%H:%M:%S')} Completed comparison {next(comparison_counter):,} of {len(comparison_pairs):,}"
         )
     with open(output_path, "w", encoding="utf-8") as file:
         json.dump(results, file, indent=4)

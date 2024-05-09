@@ -1,7 +1,7 @@
 """
 Defines function src.dataviz.make_sqlite_skeleton.make_sqlite_skeleton()
 """
-
+import pathlib
 import sqlite3
 from collections import defaultdict
 
@@ -26,6 +26,7 @@ def make_sqlite_skeleton(col_pairs: list[tuple], output_db_path: str) -> None:
         CREATE TABLE products_tbl( id );
         CREATE TABLE user_address_tbl( user_id , FOREIGN KEY (user_id) REFERENCES users_tbl(id) );
     """
+    pathlib.Path(output_db_path).unlink(missing_ok=True)
     sql_con = sqlite3.connect(output_db_path)
     sql_cur = sql_con.cursor()
 

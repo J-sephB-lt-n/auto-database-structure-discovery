@@ -11,13 +11,17 @@ logging.basicConfig(
 
 ```python
 import pathlib
+import time
 import src.transform_data
 
-for filepath in pathlib.Path("data_input").iterdir():
-    src.transform_data.pivot_jsonl(
-        input_filepath=filepath,
-        output_filepath=f"temp_storage/{filepath.stem}.json",
-    )    
+start_time = time.perf_counter()
+for path in pathlib.Path("data_input").iterdir():
+    if path.is_file():
+        src.transform_data.pivot_jsonl(
+            input_filepath=path,
+            output_filepath=f"temp_storage/{path.stem}.json",
+)
+print(f"Finished in {(time.perf_counter()-start_time)/60:,.1f} minutes")
 ```
 
 ```python

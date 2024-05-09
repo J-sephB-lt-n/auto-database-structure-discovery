@@ -8,9 +8,24 @@ import itertools
 import random
 
 
+def only_allowed_types(
+    values: list | tuple, sample_size: int, allowed_types: list[type]
+) -> bool:
+    """Takes a random sample of values, and checks that each value in the
+    random sample is of one of the allowed types.
+    None values are ignored.
+    """
+    for value in random.sample(values, k=min(sample_size, len(values))):
+        if type(value) not in allowed_types:
+            if value is not None:
+                return False
+    return True
+
+
 def join_keys(
     tbl_contents: dict[str, dict],
     n_samples: int = 500,
+    allowed_key_types: tuple[type] = (int, str),
     output_path: str = "output/discovered_join_keys.json",
     verbose: bool = False,
 ) -> None:
@@ -28,6 +43,8 @@ def join_keys(
         n_samples (int): Where a table has more than `n_samples` rows, only a random
                         selection of `n_samples` rows from column 1 will be searched
                         for in comparison column 2
+        allowed_key_types (tuple): Only columns of these data types will be considered
+                        as join keys
         output_path (str): Local path on filesystem to which the output will be written
         verbose (bool): Print match output to standard out while the code runs
 
@@ -49,12 +66,20 @@ def join_keys(
         ...         "person": [1,1,3,3,4,8,8,9,9,9,9],
         ...     }
         ... }
-        >>> discover_join_keys(tbl_contents=table_data, verbose=True)
-        !!!OUTPUT TODO HERE!!!
+        >>> discover_join_keys(tbl_contents=table_data)
     """
     results: list[dict] = []
-    table_names: tuple[str, ...] = tuple(tbl_contents.keys())
-    comparison_pairs = list(itertools.permutations(tbl_contents.items(), r=2))
+
+    limit_keytypes = {}
+    for tbl, cols in tbl_contents.items():
+        limit_keytypes[tbl] = {}
+        for col_name, col_values in cols.items():
+            if only_allowed_types(
+                values=col_values, sample_size=50, allowed_types=allowed_key_types
+            ):
+                limit_keytypes[tbl][col_name] = col_values
+
+    comparison_pairs = list(itertools.permutations(limit_keytypes.items(), r=2))
     # comparison_pairs = list(itertools.combinations(tbl_contents.items(), 2))
     comparison_counter = itertools.count(1)
     for (sample_tbl_name, sample_tbl_data), (

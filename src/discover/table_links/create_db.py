@@ -1,6 +1,7 @@
 """
 Function src.discover.table_links.create_db.create_db()
 """
+
 import json
 import logging
 import pickle
@@ -28,14 +29,14 @@ def create_db(
     edge_name_to_idx: dict[str, int] = {}
     for (t1, c1), (t2, c2) in col_pairs:
         # add nodes to graph if they aren't there
-        for node_t, node_c in ((t1, c1), (t2, c2)):
-            node_name = f"{node_t}::{node_c}"
+        for node_tbl, node_col in ((t1, c1), (t2, c2)):
+            node_name = f"{node_tbl}::{node_col}"
             if node_name not in node_name_to_idx:
                 assigned_idx = gph.add_node(node_name)
                 node_name_to_idx[node_name] = assigned_idx
                 node_idx_to_name[assigned_idx] = node_name
         # add edge if it isn't there
-        edge_name = f"{t1}::{c1} -> {t2}::{c2}"
+        edge_name = " -> ".join(sorted([f"{t1}::{c1}", f"{t2}::{c2}"]))
         if edge_name not in edge_name_to_idx:
             edge_name_to_idx[edge_name] = gph.add_edge(
                 node_name_to_idx[f"{t1}::{c1}"], node_name_to_idx[f"{t2}::{c2}"], None
@@ -55,12 +56,17 @@ def create_db(
                 all_node_paths[(src_table_name, dest_table_name)] = set()
             for path in paths:
                 path_str = node_idx_to_name[path[0]]
-                for idx in range(1, len(path) - 1):
-                    src_colname = node_idx_to_name[path[idx - 1]].split("::")[1]
-                    dst_colname = node_idx_to_name[path[idx]].split("::")[1]
-                    if src_colname != dst_colname:
-                        path_str += f" -> {node_idx_to_name[idx]}"
-                path_str += f" -> {node_idx_to_name[path[-1]]}"
+                src_colname = node_idx_to_name[path[0]].split("::")[1]
+                dest_colname = node_idx_to_name[path[-1]].split("::")[1]
+                if src_colname == dest_colname:
+                    path_str += f" -> {node_idx_to_name[path[-1]]}"
+                else:
+                    for idx in range(1, len(path) - 1):
+                        src_colname = node_idx_to_name[path[idx - 1]].split("::")[1]
+                        dest_colname = node_idx_to_name[path[idx]].split("::")[1]
+                        if src_colname != dest_colname:
+                            path_str += f" -> {node_idx_to_name[path[idx]]}"
+                    path_str += f" -> {node_idx_to_name[path[-1]]}"
                 all_node_paths[(src_table_name, dest_table_name)].add(path_str)
 
     logger.info("Writing output to [%s]", output_filepath)

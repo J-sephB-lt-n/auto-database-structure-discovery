@@ -66,6 +66,7 @@ src.decision.join_keys(
     min_match_criteria=(
         ("matches", "exactly_1_match_in_lookup", "percent", (greater_than, 0.1)),
         ("sampled_col", "sample_size", "percent_null", (less_than, 0.95)),
+        ("sampled_col", "sample_size", "n_unique/n_rows", (greater_than, 0.5)),
         ("lookup_col", "size", "percent_null", (less_than, 0.95)),
         ("sampled_col", "sample_size", "n_unique", (greater_than, 4)),
         ("lookup_col", "size", "n_unique", (greater_than, 4)),

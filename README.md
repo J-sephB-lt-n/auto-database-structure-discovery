@@ -6,7 +6,7 @@ Their database contained 66 tables, and was in general a giant disaster - no dat
 
 This repo contains the code which I wrote to perform automated structure discovery within the database. Specifically, the code aims to discover the specific ID columns which can be used join tables to one another.
 
-Here is a visualisation of the tables connections which were discovered:
+Here is a visualisation of the table connections which were discovered:
 
 ![The discovered table connections visualised in dbvisualizer](./join_keys_visualised.png)
 

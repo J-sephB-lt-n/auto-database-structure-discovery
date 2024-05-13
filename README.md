@@ -1,10 +1,10 @@
-# Automatic Database Schema Discovery
+# Automatic Database Structure Discovery
 
 This code arose out of a very squeezed consulting project, in which my team was required to provide automated transaction monitoring for a financial client in a very short period of time. 
 
 Their database contained 66 tables, and was in general a giant disaster - no data dictionary or data expert within the company, inconsistent column naming, NULL value traps everywhere.
 
-This repo contains the code which I wrote to perform automated structure discovery within the database. Specifically, the code aims to discover the specific ID columns which can be used join tables to one another.
+This repo contains the code which I wrote to perform automated structure discovery within the database. Specifically, the code aims to discover the specific ID columns which can be used to join tables to one another.
 
 Here is a visualisation of the table connections which were discovered:
 

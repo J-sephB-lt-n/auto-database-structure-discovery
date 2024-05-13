@@ -1,30 +1,30 @@
 # Automatic Database Schema Discovery
 
-This code arose out of a very squeezed consulting project, in which my team was required to provide automated transaction monitoring for a financial client. 
+This code arose out of a very squeezed consulting project, in which my team was required to provide automated transaction monitoring for a financial client in a very short period of time. 
 
 Their database contained 66 tables, and was in general a giant disaster - no data dictionary or data expert within the company, inconsistent column naming, NULL value traps everywhere.
 
-This repo contains the code which I wrote to perform automated discovery of join-keys in the database (i.e. the join relationships between all of the different tables).
+This repo contains the code which I wrote to perform automated structure discovery within the database. Specifically, the code aims to discover the specific ID columns which can be used join tables to one another.
 
-Here is a visualisation of the tables connections which I discovered:
+Here is a visualisation of the tables connections which were discovered:
 
 ![The discovered table connections visualised in dbvisualizer](./join_keys_visualised.png)
 
-What the code in this repo does is as follows:
+What the code in this repo does is:
 
-1. Evaluates every possible pair of columns in the entire database.
+1. Evaluate every possible pair of columns in the entire database as potential matching join keys.
 
-2. Calculates various matching metrics for each column pair.
+2. Calculate various matching metrics for each potentially matching column pair.
 
-3. Applies thresholding criteria to decide which pairs of columns constitute a useful joining pair (i.e. matching IDs useful for joining tables).
+3. Apply thresholding criteria to decide which pairs of columns constitute a useful joining pair (i.e. matching IDs useful for joining tables).
 
-4. Exports the discovered structure as a SQLite database containing empty tables with foreign key constraints, so that the table relationships can be visualised, navigated and explored using any chosen database visualisation tool.
+4. Export the discovered structure as a SQLite database containing empty tables with foreign key constraints, so that the table relationships can be visualised, navigated and explored using any chosen database visualisation tool.
 
-5. Models the connected tables as a graph, so that multi-step join paths between tables can be discovered.
+5. Model the connected tables as a graph, so that multi-step join paths between tables can be discovered.
 
-This code was written with great haste, so code documentation is a bit low (and testing is non-existent). I would love to return to this code again at a later stage and optimise, scale and improve it.
+This code was written with great haste, and as a result code documentation is quite low (and testing is non-existent). I would love to return to this code again at a later stage and optimise, scale and improve it.
 
-In particular, the join-key discovery part of the code uses for loops and will be prohibitively slow on larger databases (I'd like to rewrite it in duckdb, or something similar). The code is fast enough for .jsonl files up to a few hundred megabytes each. 
+In particular, the join-key discovery part of the code uses for loops in native python and will be prohibitively slow on larger databases (I'd like to rewrite it in duckdb, or something similar). The code is fast enough for .jsonl files up to a few hundred megabytes each. 
 
 I will definitely use this code again whenever I am faced with a giant mysterious documentationless database.
 

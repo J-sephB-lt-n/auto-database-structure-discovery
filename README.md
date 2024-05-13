@@ -1,6 +1,44 @@
-# database-schema-discovery
-Description TODO
+# Automatic Database Schema Discovery
 
+This code arose out of a very squeezed consulting project, in which my team was required to provide automated transaction monitoring for a financial client. 
+
+Their database contained 66 tables, and was in general a giant disaster - no data dictionary or data expert within the company, inconsistent column naming, NULL value traps everywhere.
+
+This repo contains the code which I wrote to perform automated discovery of join-keys in the database (i.e. the join relationships between all of the different tables).
+
+Here is a visualisation of the tables connections which I discovered:
+
+![The discovered table connections visualised in dbvisualizer](./join_keys_visualised.png)
+
+What the code in this repo does is as follows:
+
+1. Evaluates every possible pair of columns in the entire database.
+
+2. Calculates various matching metrics for each column pair.
+
+3. Applies thresholding criteria to decide which pairs of columns constitute a useful joining pair (i.e. matching IDs useful for joining tables).
+
+4. Exports the discovered structure as a SQLite database containing empty tables with foreign key constraints, so that the table relationships can be visualised, navigated and explored using any chosen database visualisation tool.
+
+5. Models the connected tables as a graph, so that multi-step join paths between tables can be discovered.
+
+This code was written with great haste, so code documentation is a bit low (and testing is non-existent). I would love to return to this code again at a later stage and optimise, scale and improve it.
+
+In particular, the join-key discovery part of the code uses for loops and will be prohibitively slow on larger databases (I'd like to rewrite it in duckdb, or something similar). The code is fast enough for .jsonl files up to a few hundred megabytes each. 
+
+I will definitely use this code again whenever I am faced with a giant mysterious documentationless database.
+
+The expected input data format expected by this codebase is:
+
+* .jsonl files in the folder /data_input/
+
+* One .jsonl file per table in the database
+
+* Each line of the .jsonl file is a single row of the table e.g. {"col1":"value1", "col2":"value2"} etc. 
+
+Below is the (python) code which I used to run the process:
+
+Set up the logger:
 ```python
 import logging
 logging.basicConfig(
@@ -9,6 +47,7 @@ logging.basicConfig(
 )
 ```
 
+Pivot the row-wise .jsonl files into a column format:
 ```python
 import pathlib
 import time
@@ -27,6 +66,7 @@ for path in pathlib.Path("data_input").iterdir():
 print(f"Finished pivoting .jsonl files in {(time.perf_counter()-start_time)/60:,.1f} minutes")
 ```
 
+Compare all possible column pairs:
 ```python
 import json
 import pathlib
@@ -54,6 +94,7 @@ src.discover.join_keys(
 print(f"Finished discovering join keys in {(time.perf_counter()-start_time)/60:,.1f} minutes")
 ```
 
+Decide which column pairs are sufficiently matching to be considered as useful join keys:
 ```python
 import time
 
@@ -77,6 +118,7 @@ src.decision.join_keys(
 print(f"Finished making join key decisions in {(time.perf_counter()-start_time)/60:,.1f} minutes")
 ```
 
+Save the identified join keys in a useable CSV format:
 ```python
 import src.dataviz
 src.dataviz.join_key_decisions_to_csv(
@@ -85,6 +127,8 @@ src.dataviz.join_key_decisions_to_csv(
 )
 ```
 
+Create a SQLite database of empty tables with the identified join keys defined foreign key constraints - this can be visualised using any database visualisation tool
+(I used [dbvisualiser](https://www.dbvis.com/), which worked amazingly):
 ```python
 import json
 import time
@@ -102,6 +146,7 @@ src.dataviz.make_sqlite_skeleton(
 print(f"Exported SQLite db skeleton in {(time.perf_counter()-start_time)/60:,.1f} minutes")
 ```
 
+Discover multi-step table connections by modelling the whole system as a graph:
 ```python
 import src.discover.table_links
 import src.transform_data.table_link_paths_to_csv
@@ -117,5 +162,3 @@ src.transform_data.table_link_paths_to_csv(
     output_filepath="output/transform_data/table_links_to_csv/table_link_paths.csv",
 )
 ```
-
-

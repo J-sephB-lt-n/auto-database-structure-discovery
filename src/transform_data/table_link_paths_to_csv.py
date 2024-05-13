@@ -16,7 +16,7 @@ def table_link_paths_to_csv(input_data_filepath: str, output_filepath: str):
     with open(output_filepath, mode="w", encoding="utf-8") as file:
         csv_writer = csv.DictWriter(
             file,
-            fieldnames=["source_table", "destination_table", "path"],
+            fieldnames=["source_table", "destination_table", "path", "path_len"],
             delimiter=",",
             quotechar='"',
             quoting=csv.QUOTE_MINIMAL,
@@ -29,5 +29,6 @@ def table_link_paths_to_csv(input_data_filepath: str, output_filepath: str):
                         "source_table": src_tbl_name,
                         "destination_table": dest_tbl_name,
                         "path": path,
+                        "path_len": len(path.split(" -> ")),
                     }
                 )
